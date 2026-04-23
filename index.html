@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="جرد المخازن">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>نظام جرد المخازن - جامعة عبد الله السالم</title>
@@ -50,6 +45,8 @@
         .btn-info:hover, .btn-info:active { background-color: #138496; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3); }
         .btn-purple { background-color: #9b59b6; color: white; }
         .btn-purple:hover, .btn-purple:active { background-color: #8e44ad; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(155, 89, 182, 0.3); }
+        .btn-sync { background-color: #1a73e8; color: white; }
+        .btn-sync:hover, .btn-sync:active { background-color: #1557b0; transform: translateY(-2px); }
         .btn-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
         .search-box { background-color: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e9ecef; }
         .search-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 15px; }
@@ -77,9 +74,12 @@
         .search-results-table th, .search-results-table td { white-space: nowrap; }
         .search-results-table .actions-cell { display: flex; gap: 5px; justify-content: center; align-items: center; flex-wrap: wrap; }
         .search-results-table .actions-cell button { width: auto; padding: 6px 10px; margin: 0; font-size: 14px; }
-        .critical-store { background-color: #fff3cd; border: 1px solid #ffeaa7; }
         .critical-warning { color: #e74c3c; font-weight: bold; }
         .critical-zero { color: #c0392b; font-weight: bold; background-color: #f8d7da; border-radius: 4px; padding: 2px 8px; display: inline-block; }
+        .sync-status { padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 13px; }
+        .sync-status.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .sync-status.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .sync-status.info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
         @media (max-width: 768px) {
             .container { padding: 8px; }
             header { padding: 15px 0; margin-bottom: 10px; }
@@ -151,6 +151,7 @@
             <button class="tab-btn" data-tab="print" data-ar="🖨️ طباعة" data-en="🖨️ Print">🖨️ طباعة</button>
             <button class="tab-btn" data-tab="stats" data-ar="📊 إحصائيات" data-en="📊 Statistics">📊 إحصائيات</button>
             <button class="tab-btn" data-tab="excel" data-ar="📁 Excel" data-en="📁 Excel">📁 Excel</button>
+            <button class="tab-btn" data-tab="sync" data-ar="☁️ مزامنة" data-en="☁️ Sync">☁️ مزامنة</button>
         </div>
         
         <div id="search" class="tab-content active"> 
@@ -233,25 +234,8 @@
             <div class="search-box">
                 <h3 style="margin-bottom:15px;text-align:center;" data-ar="تقرير المخزن الحرج" data-en="Critical Store Report">تقرير المخزن الحرج</h3>
                 <div class="alert alert-warning" data-ar="هذا التقرير يعرض المواد التي قاربت على النفاد (10% أو أقل من الرصيد الأصلي) أو التي أصبح رصيدها صفر، لاتخاذ إجراءات الشراء اللازمة قبل نفاد المخزون" data-en="This report shows materials that are running low (10% or less of original stock) or have zero stock, for procurement action">هذا التقرير يعرض المواد التي قاربت على النفاد (10% أو أقل من الرصيد الأصلي) أو التي أصبح رصيدها صفر، لاتخاذ إجراءات الشراء اللازمة قبل نفاد المخزون</div>
-                <div class="form-row">
-                    <div class="form-group"><label data-ar="اختر نوع المخزن:" data-en="Select Store Type:">اختر نوع المخزن:</label>
-                        <select id="critical-store-type">
-                            <option value="">كل المخازن</option>
-                            <option value="كيمويات">كيمويات</option>
-                            <option value="مستهلكات">مستهلكات</option>
-                            <option value="أجهزة علمية">أجهزة علمية</option>
-                            <option value="قرطاسية">قرطاسية</option>
-                            <option value="حاسب آلي">حاسب آلي</option>
-                            <option value="مواد معادة">مواد معادة</option>
-                            <option value="مواد مختلطة">مواد مختلطة</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button class="btn-primary" id="btn-search-critical" data-ar="🔍 عرض التقرير" data-en="🔍 Show Report">🔍 عرض التقرير</button>
-                    <button class="btn-purple" id="btn-word-critical" data-ar="📄 تقرير Word" data-en="📄 Word Report">📄 تقرير Word</button>
-                    <button class="btn-warning" id="btn-clear-critical" data-ar="مسح النتائج" data-en="Clear">مسح النتائج</button>
-                </div>
+                <div class="form-row"><div class="form-group"><label data-ar="اختر نوع المخزن:" data-en="Select Store Type:">اختر نوع المخزن:</label><select id="critical-store-type"><option value="">كل المخازن</option><option value="كيمويات">كيمويات</option><option value="مستهلكات">مستهلكات</option><option value="أجهزة علمية">أجهزة علمية</option><option value="قرطاسية">قرطاسية</option><option value="حاسب آلي">حاسب آلي</option><option value="مواد معادة">مواد معادة</option><option value="مواد مختلطة">مواد مختلطة</option></select></div></div>
+                <div class="btn-group"><button class="btn-primary" id="btn-search-critical" data-ar="🔍 عرض التقرير" data-en="🔍 Show Report">🔍 عرض التقرير</button><button class="btn-purple" id="btn-word-critical" data-ar="📄 تقرير Word" data-en="📄 Word Report">📄 تقرير Word</button><button class="btn-warning" id="btn-clear-critical" data-ar="مسح النتائج" data-en="Clear">مسح النتائج</button></div>
             </div>
             <div id="critical-results"></div>
         </div>
@@ -266,6 +250,31 @@
         
         <div id="excel" class="tab-content"> 
             <div class="search-box"><h3 style="margin-bottom:15px;text-align:center;" data-ar="استيراد وتصدير ملفات Excel" data-en="Import / Export Excel">استيراد وتصدير ملفات Excel</h3><div class="form-row"><div class="form-group"><label data-ar="تصدير البيانات إلى Excel:" data-en="Export Data to Excel:">تصدير البيانات إلى Excel:</label><div class="btn-group"><button class="btn-success" id="btn-export-excel" data-ar="📥 تصدير إلى Excel" data-en="📥 Export to Excel">📥 تصدير إلى Excel</button><button class="btn-warning" id="btn-download-template" data-ar="📋 تحميل نموذج Excel" data-en="📋 Download Template">📋 تحميل نموذج Excel</button></div></div><div class="form-group"><label data-ar="استيراد البيانات من Excel:" data-en="Import Data from Excel:">استيراد البيانات من Excel:</label><div class="btn-group"><input type="file" id="excel-file" accept=".xlsx,.xls" style="display:none;"><button class="btn-primary" id="btn-import-excel" data-ar="📤 استيراد من Excel" data-en="📤 Import from Excel">📤 استيراد من Excel</button><button class="btn-danger" id="btn-clear-all" data-ar="🗑️ مسح جميع البيانات" data-en="🗑️ Clear All Data">🗑️ مسح جميع البيانات</button></div></div><div class="form-group"><label data-ar="حذف بيانات مخزن محدد:" data-en="Delete Specific Store Data:">حذف بيانات مخزن محدد:</label><div class="btn-group"><select id="delete-store-select" style="margin-bottom:10px;"><option value="">اختر المخزن</option><option value="كيمويات">كيمويات</option><option value="مستهلكات">مستهلكات</option><option value="أجهزة علمية">أجهزة علمية</option><option value="قرطاسية">قرطاسية</option><option value="حاسب آلي">حاسب آلي</option><option value="مواد معادة">مواد معادة</option><option value="مواد مختلطة">مواد مختلطة</option></select><button class="btn-danger" id="btn-clear-store-data" style="background-color:#e67e22;" data-ar="🗑️ حذف بيانات المخزن المختار" data-en="🗑️ Delete Selected Store Data">🗑️ حذف بيانات المخزن المختار</button></div></div></div></div>
+        </div>
+        
+        <!-- تبويب المزامنة المبسط -->
+        <div id="sync" class="tab-content"> 
+            <div class="search-box">
+                <h3 style="margin-bottom:15px;text-align:center;" data-ar="مزامنة البيانات بين الأجهزة" data-en="Sync Data Between Devices">🔄 مزامنة البيانات بين الأجهزة</h3>
+                <div class="alert alert-info" data-ar="استخدم هذه الخدمة لمزامنة البيانات بين أجهزتك المختلفة. قم بتصدير ملف JSON من جهاز، ثم انقله إلى الجهاز الآخر واستورده." data-en="Use this service to sync data between your devices. Export a JSON file from one device, transfer it to the other device, and import it.">📌 استخدم هذه الخدمة لمزامنة البيانات بين أجهزتك المختلفة. قم بتصدير ملف JSON من جهاز، ثم انقله إلى الجهاز الآخر (عبر البريد الإلكتروني أو الواتساب أو USB) واستورده.</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label data-ar="تاريخ آخر تصدير:" data-en="Last Export Date:">تاريخ آخر تصدير:</label>
+                        <div id="last-export-date" class="results-info" style="margin-top:0;">لم يتم تصدير نسخة بعد</div>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn-success" id="btn-export-backup" data-ar="💾 تصدير البيانات (ملف JSON)" data-en="💾 Export Data (JSON)">💾 تصدير البيانات (ملف JSON)</button>
+                    <button class="btn-primary" id="btn-import-backup" data-ar="📂 استيراد البيانات (ملف JSON)" data-en="📂 Import Data (JSON)">📂 استيراد البيانات (ملف JSON)</button>
+                    <input type="file" id="backup-file" accept=".json" style="display:none;">
+                </div>
+                
+                <div class="alert alert-warning" style="margin-top:15px;" data-ar="تنبيه: استيراد ملف JSON سيحل محل البيانات الحالية بالكامل. يوصى بعمل نسخة احتياطية قبل الاستيراد." data-en="Warning: Importing a JSON file will completely replace existing data. It is recommended to make a backup before importing.">⚠️ تنبيه: استيراد ملف JSON سيحل محل البيانات الحالية بالكامل. يوصى بعمل نسخة احتياطية قبل الاستيراد.</div>
+                
+                <div id="sync-message" style="margin-top:15px;"></div>
+            </div>
         </div>
     </div>
 
@@ -308,6 +317,7 @@
                 this.updateStats();
                 this.initLanguage();
                 this.showAlert("تم تحميل البيانات بنجاح",'success');
+                this.updateLastExportDate();
             }
             
             initLanguage(){
@@ -354,6 +364,99 @@
                 return this.storage.save(payload);
             }
             
+            updateLastExportDate() {
+                const lastExport = localStorage.getItem('lastExportDate');
+                const dateDiv = document.getElementById('last-export-date');
+                if (lastExport && dateDiv) {
+                    dateDiv.innerHTML = `📅 آخر تصدير: ${new Date(lastExport).toLocaleString('ar-EG')}`;
+                    dateDiv.style.background = "#d4edda";
+                    dateDiv.style.color = "#155724";
+                } else if (dateDiv) {
+                    dateDiv.innerHTML = "📅 لم يتم تصدير نسخة بعد";
+                    dateDiv.style.background = "#d1ecf1";
+                    dateDiv.style.color = "#0c5460";
+                }
+            }
+            
+            exportBackupToJSON() {
+                const dataToSave = {
+                    materials: this.materials,
+                    inventory: this.inventoryCounts,
+                    requests: this.issueRequests,
+                    currentRequest: this.currentRequest,
+                    currentRequestItems: this.currentRequestItems,
+                    exportDate: new Date().toISOString(),
+                    version: "1.0"
+                };
+                
+                const jsonData = JSON.stringify(dataToSave, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const fileName = `مخزني_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+                saveAs(blob, fileName);
+                
+                localStorage.setItem('lastExportDate', new Date().toISOString());
+                this.updateLastExportDate();
+                this.showAlert('تم تصدير النسخة الاحتياطية بنجاح', 'success');
+            }
+            
+            importBackupFromJSON(file) {
+                if (!file) return;
+                
+                if (!confirm('⚠️ تحذير: استيراد هذا الملف سيحل محل جميع البيانات الحالية (المواد، الجرد، طلبات الصرف). هل أنت متأكد؟')) {
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        // التحقق من صحة الملف
+                        if (!data.materials && !data.inventory && !data.requests) {
+                            this.showAlert('الملف غير صالح أو تالف', 'error');
+                            return;
+                        }
+                        
+                        // استعادة البيانات
+                        if (data.materials) this.materials = data.materials;
+                        if (data.inventory) this.inventoryCounts = data.inventory;
+                        if (data.requests) this.issueRequests = data.requests;
+                        if (data.currentRequest) this.currentRequest = data.currentRequest;
+                        if (data.currentRequestItems) this.currentRequestItems = data.currentRequestItems;
+                        
+                        // حفظ في localStorage
+                        this.saveAllData();
+                        
+                        // تحديث الواجهة
+                        this.updateStats();
+                        this.showSearchResults();
+                        this.showInventoryResults();
+                        this.showCurrentRequestItems();
+                        this.showPreviousRequests();
+                        
+                        const exportDate = data.exportDate ? new Date(data.exportDate).toLocaleString('ar-EG') : 'تاريخ غير معروف';
+                        this.showAlert(`تم استيراد النسخة الاحتياطية بنجاح (تاريخ التصدير: ${exportDate})`, 'success');
+                        this.updateLastExportDate();
+                        
+                    } catch (error) {
+                        console.error('Import Error:', error);
+                        this.showAlert('الملف غير صالح أو تالف', 'error');
+                    }
+                };
+                reader.readAsText(file);
+                document.getElementById('backup-file').value = '';
+            }
+            
+            showSyncMessage(message, type) {
+                const msgDiv = document.getElementById('sync-message');
+                if (msgDiv) {
+                    msgDiv.innerHTML = `<div class="sync-status ${type}" style="margin-top:10px;">${message}</div>`;
+                    setTimeout(() => {
+                        if (msgDiv.innerHTML.includes(message)) msgDiv.innerHTML = '';
+                    }, 5000);
+                }
+            }
+            
             setupUI(){
                 document.getElementById('btn-search').addEventListener('click',()=>this.searchMaterials());
                 document.getElementById('btn-clear-search').addEventListener('click',()=>this.clearSearch());
@@ -388,6 +491,11 @@
                 document.getElementById('btn-search-critical').addEventListener('click',()=>this.searchCriticalMaterials());
                 document.getElementById('btn-word-critical').addEventListener('click',()=>this.exportCriticalToWord());
                 document.getElementById('btn-clear-critical').addEventListener('click',()=>this.clearCriticalResults());
+                
+                // أزرار المزامنة المبسطة
+                document.getElementById('btn-export-backup').addEventListener('click',()=>this.exportBackupToJSON());
+                document.getElementById('btn-import-backup').addEventListener('click',()=>document.getElementById('backup-file').click());
+                document.getElementById('backup-file').addEventListener('change',(e)=>this.importBackupFromJSON(e.target.files[0]));
                 
                 const issueOracle = document.getElementById('issue-oracle');
                 issueOracle.addEventListener('keydown', (e) => {
@@ -444,7 +552,7 @@
             searchMaterials(){ const name=document.getElementById('search-name').value.trim().toLowerCase(); const shelf=document.getElementById('search-shelf').value.trim().toLowerCase(); const oracle=document.getElementById('search-oracle').value.trim().toLowerCase(); const store=document.getElementById('search-store').value; this.currentSearchResults=this.materials.filter(m=>(!name||m.name.toLowerCase().includes(name))&&(!shelf||m.shelf.toLowerCase().includes(shelf))&&(!oracle||m.oracleCode.toLowerCase().includes(oracle))&&(!store||m.storeType===store)); this.currentPage=1; this.showSearchResults(); }
             
             showSearchResults(){ const container=document.getElementById('search-results'); if(!container) return; const results=this.currentSearchResults.length?this.currentSearchResults:this.materials; const start=(this.currentPage-1)*this.itemsPerPage; const pageRes=results.slice(start,start+this.itemsPerPage); let html=`<div class="results-info">عرض ${start+1}-${Math.min(start+this.itemsPerPage,results.length)} من ${results.length} مادة</div><div class="table-container"><table class="search-results-table"><thead><tr><th>#</th><th>اسم المادة</th><th>رقم الرف</th><th>كود الأوريكال</th><th>الكمية</th><th>المخزن</th><th>الإجراءات</th></tr></thead><tbody>`;
-                pageRes.forEach((m,i)=>{ html+=`<tr><td class="checkbox-cell">${start+i+1}</td><td>${m.name}</td><td>${m.shelf}</td><td>${m.oracleCode}</td><td>${m.quantity} ${m.unit}</td><td>${m.storeType}</td><td class="actions-cell"><button onclick="labSystem.printMaterial(${m.id})" class="btn-primary" style="padding:6px 12px;">🖨️</button><button onclick="labSystem.editMaterial(${m.id})" class="btn-warning" style="padding:6px 12px;">✏️</button><button onclick="labSystem.deleteMaterial(${m.id})" class="btn-danger" style="padding:6px 12px;">🗑️</button></td>`; });
+                pageRes.forEach((m,i)=>{ html+=`<tr><td class="checkbox-cell">${start+i+1}</td><td style="text-align:right">${m.name}</td><td style="text-align:center">${m.shelf}</td><td style="text-align:center">${m.oracleCode}</td><td style="text-align:center">${m.quantity} ${m.unit}</td><td style="text-align:center">${m.storeType}</td><td class="actions-cell"><button onclick="labSystem.printMaterial(${m.id})" class="btn-primary" style="padding:6px 12px;">🖨️</button><button onclick="labSystem.editMaterial(${m.id})" class="btn-warning" style="padding:6px 12px;">✏️</button><button onclick="labSystem.deleteMaterial(${m.id})" class="btn-danger" style="padding:6px 12px;">🗑️</button></td>`; });
                 html+=`</tbody>}</div>`; container.innerHTML=html;
             }
             
@@ -456,7 +564,7 @@
             
             async addToInventory(){ const code=document.getElementById('inventory-oracle').value.trim(); const mat=this.materials.find(m=>m.oracleCode===code); if(!mat){ this.showAlert('المادة غير موجودة','error'); return; } const cnt=document.getElementById('inventory-counted-quantity').value.trim(); if(!cnt){ this.showAlert('أدخل الكمية المجرودة','error'); return; } const diff=document.getElementById('inventory-difference').value; const notes=document.getElementById('inventory-notes').value; const idx=this.inventoryCounts.findIndex(i=>i.oracleCode===code); const item={id:mat.id,name:mat.name,oracleCode:mat.oracleCode,currentQuantity:mat.quantity,unit:mat.unit,countedQuantity:cnt,difference:diff,notes:notes,date:new Date().toISOString().split('T')[0]}; if(idx>=0) this.inventoryCounts[idx]=item; else this.inventoryCounts.push(item); await this.saveAllData(); this.showAlert('تم إضافة المادة للجرد','success'); this.showInventoryResults(); this.clearInventoryForm(); document.getElementById('inventory-oracle').focus(); }
             
-            showInventoryResults(){ const container=document.getElementById('inventory-results'); if(!container) return; if(!this.inventoryCounts.length){ container.innerHTML='<div class="alert alert-info">لا توجد مواد في الجرد</div>'; return; } let html=`<div class="results-info">${this.inventoryCounts.length} مادة في الجرد</div><div class="table-container">\n<tr><thead><tr><th>اسم المادة</th><th>كود الأوريكال</th><th>الكمية الحالية</th><th>الكمية المجرودة</th><th>الفرق</th><th>ملاحظات</th><th>التاريخ</th><th>إجراءات</th></tr></thead><tbody>`; this.inventoryCounts.forEach(i=>{ html+=`<tr><td>${i.name}</td><td>${i.oracleCode}</td><td>${i.currentQuantity} ${i.unit}</td><td>${i.countedQuantity} ${i.unit}</td><td class="${i.difference>0?'positive-diff':i.difference<0?'negative-diff':'zero-diff'}">${i.difference}</td><td>${i.notes||'-'}</td><td>${i.date}</td><td class="actions-cell"><button onclick="labSystem.editInventoryItem('${i.oracleCode}')" class="btn-warning">✏️</button><button onclick="labSystem.deleteInventoryItem('${i.oracleCode}')" class="btn-danger">🗑️</button></td>`; }); html+=`</tbody>}</div>`; container.innerHTML=html; }
+            showInventoryResults(){ const container=document.getElementById('inventory-results'); if(!container) return; if(!this.inventoryCounts.length){ container.innerHTML='<div class="alert alert-info">لا توجد مواد في الجرد</div>'; return; } let html=`<div class="results-info">${this.inventoryCounts.length} مادة في الجرد</div><div class="table-container">\n</table><thead><tr><th>اسم المادة</th><th>كود الأوريكال</th><th>الكمية الحالية</th><th>الكمية المجرودة</th><th>الفرق</th><th>ملاحظات</th><th>التاريخ</th><th>إجراءات</th></tr></thead><tbody>`; this.inventoryCounts.forEach(i=>{ html+=`<tr><td style="text-align:right">${i.name}</td><td style="text-align:center">${i.oracleCode}</td><td style="text-align:center">${i.currentQuantity} ${i.unit}</td><td style="text-align:center">${i.countedQuantity} ${i.unit}</td><td class="${i.difference>0?'positive-diff':i.difference<0?'negative-diff':'zero-diff'}">${i.difference}</td><td style="text-align:center">${i.notes||'-'}</td><td style="text-align:center">${i.date}</td><td class="actions-cell"><button onclick="labSystem.editInventoryItem('${i.oracleCode}')" class="btn-warning">✏️</button><button onclick="labSystem.deleteInventoryItem('${i.oracleCode}')" class="btn-danger">🗑️</button></td>`; }); html+=`</tbody>}</div>`; container.innerHTML=html; }
             
             clearInventoryForm(){ document.getElementById('inventory-oracle').value=''; document.getElementById('inventory-name').value=''; document.getElementById('inventory-current-quantity').value=''; document.getElementById('inventory-counted-quantity').value=''; document.getElementById('inventory-difference').value=''; document.getElementById('inventory-notes').value=''; }
             
@@ -466,13 +574,13 @@
             
             async clearInventory(){ if(this.inventoryCounts.length===0){ this.showAlert('لا توجد مواد جرد للمسح','warning'); return; } if(confirm('هل أنت متأكد من مسح جميع مواد الجرد؟')){ this.inventoryCounts=[]; await this.saveAllData(); this.showInventoryResults(); this.showAlert('تم مسح الجرد بالكامل','success'); } }
             
-            searchZeroInventory(){ const type=document.getElementById('zero-store-type').value; if(!type){ this.showAlert('اختر نوع المخزن','warning'); return; } const zero=this.materials.filter(m=>m.storeType===type && !this.inventoryCounts.some(i=>i.oracleCode===m.oracleCode)); let html=''; if(!zero.length) html='<div class="alert alert-info">لا توجد مواد غير مجرودة</div>'; else{ html=`<div class="results-info">${zero.length} مواد غير مجرودة</div><div class="table-container">\n<table><thead><tr><th>#</th><th>اسم المادة</th><th>كود الأوريكال</th><th>رقم الرف</th><th>الكمية</th><th>الوحدة</th></tr></thead><tbody>`; zero.forEach((m,i)=>{ html+=`<tr><td class="checkbox-cell">${i+1}</td><td>${m.name}</td><td>${m.oracleCode}</td><td>${m.shelf}</td><td>${m.quantity}</td><td>${m.unit}</td>`; }); html+=`</tbody>}</div>`; } document.getElementById('zero-inventory-results').innerHTML=html; }
+            searchZeroInventory(){ const type=document.getElementById('zero-store-type').value; if(!type){ this.showAlert('اختر نوع المخزن','warning'); return; } const zero=this.materials.filter(m=>m.storeType===type && !this.inventoryCounts.some(i=>i.oracleCode===m.oracleCode)); let html=''; if(!zero.length) html='<div class="alert alert-info">لا توجد مواد غير مجرودة</div>'; else{ html=`<div class="results-info">${zero.length} مواد غير مجرودة</div><div class="table-container">\n<table><thead><tr><th>#</th><th>اسم المادة</th><th>كود الأوريكال</th><th>رقم الرف</th><th>الكمية</th><th>الوحدة</th></tr></thead><tbody>`; zero.forEach((m,i)=>{ html+=`<tr><td class="checkbox-cell">${i+1}</td><td style="text-align:right">${m.name}</td><td style="text-align:center">${m.oracleCode}</td><td style="text-align:center">${m.shelf}</td><td style="text-align:center">${m.quantity}</td><td style="text-align:center">${m.unit}</td>`; }); html+=`</tbody>}</div>`; } document.getElementById('zero-inventory-results').innerHTML=html; }
             
             clearZeroResults(){ document.getElementById('zero-store-type').value=''; document.getElementById('zero-inventory-results').innerHTML=''; }
             
-            generateReport(){ const type=document.getElementById('report-store-type').value; if(!type){ this.showAlert('اختر نوع المخزن للتقرير','warning'); return; } const date=document.getElementById('report-date').value; const data=this.materials.filter(m=>(type===''||m.storeType===type) && this.inventoryCounts.some(i=>i.oracleCode===m.oracleCode)).map(m=>{const i=this.inventoryCounts.find(i=>i.oracleCode===m.oracleCode); return{name:m.name,oracleCode:m.oracleCode,shelf:m.shelf,quantity:m.quantity,unit:m.unit,countedQuantity:i?.countedQuantity||0,difference:i?.difference||0,notes:i?.notes||''};}); if(!data.length){ this.showAlert('لا توجد بيانات جرد للتقرير','warning'); return; } let html=`<div class="results-info">تقرير الجرد - ${date}</div><div class="table-container">\n<tr><thead><tr><th>اسم المادة</th><th>كود الأوريكال</th><th>رقم الرف</th><th>الكمية بالمخزن</th><th>الكمية المجرودة</th><th>الفارق</th><th>ملاحظات</th></tr></thead><tbody>`; data.forEach(d=>{ html+=`<tr><td>${d.name}</td><td>${d.oracleCode}</td><td>${d.shelf}</td><td>${d.quantity} ${d.unit}</td><td>${d.countedQuantity} ${d.unit}</td><td class="${d.difference>0?'positive-diff':d.difference<0?'negative-diff':'zero-diff'}">${d.difference}</td><td>${d.notes||'-'}</td>`; }); html+=`</tbody>}</div>`; document.getElementById('report-results').innerHTML=html; this.showAlert('تم إنشاء التقرير','success'); }
+            generateReport(){ const type=document.getElementById('report-store-type').value; if(!type){ this.showAlert('اختر نوع المخزن للتقرير','warning'); return; } const date=document.getElementById('report-date').value; const data=this.materials.filter(m=>(type===''||m.storeType===type) && this.inventoryCounts.some(i=>i.oracleCode===m.oracleCode)).map(m=>{const i=this.inventoryCounts.find(i=>i.oracleCode===m.oracleCode); return{name:m.name,oracleCode:m.oracleCode,shelf:m.shelf,quantity:m.quantity,unit:m.unit,countedQuantity:i?.countedQuantity||0,difference:i?.difference||0,notes:i?.notes||''};}); if(!data.length){ this.showAlert('لا توجد بيانات جرد للتقرير','warning'); return; } let html=`<div class="results-info">تقرير الجرد - ${date}</div><div class="table-container">\n<td><thead><tr><th>اسم المادة</th><th>كود الأوريكال</th><th>رقم الرف</th><th>الكمية بالمخزن</th><th>الكمية المجرودة</th><th>الفارق</th><th>ملاحظات</th></tr></thead><tbody>`; data.forEach(d=>{ html+=`<tr><td style="text-align:right">${d.name}</td><td style="text-align:center">${d.oracleCode}</td><td style="text-align:center">${d.shelf}</td><td style="text-align:center">${d.quantity} ${d.unit}</td><td style="text-align:center">${d.countedQuantity} ${d.unit}</td><td class="${d.difference>0?'positive-diff':d.difference<0?'negative-diff':'zero-diff'}">${d.difference}</td><td style="text-align:center">${d.notes||'-'}</td>`; }); html+=`</tbody>}</div>`; document.getElementById('report-results').innerHTML=html; this.showAlert('تم إنشاء التقرير','success'); }
             
-            printReport(){ const type=document.getElementById('report-store-type').value; const date=document.getElementById('report-date').value; const data=this.materials.filter(m=>(type===''||m.storeType===type) && this.inventoryCounts.some(i=>i.oracleCode===m.oracleCode)).map(m=>{const i=this.inventoryCounts.find(i=>i.oracleCode===m.oracleCode); return{name:m.name,oracleCode:m.oracleCode,shelf:m.shelf,quantity:m.quantity,unit:m.unit,countedQuantity:i?.countedQuantity||0,difference:i?.difference||0,notes:i?.notes||''};}); if(!data.length){ this.showAlert('لا توجد بيانات','warning'); return; } const w=window.open('','_blank'); w.document.write(`<html><head><title>تقرير الجرد</title><style>body{font-family:Arial;padding:20px;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ddd;padding:8px;text-align:center;}th{background:#2c3e50;color:white;}</style></head><body><h2 style="text-align:center;">تقرير جرد المواد</h2><p>التاريخ: ${date}</p><table><thead><tr><th>اسم المادة</th><th>كود الأوريكال</th><th>الكمية بالمخزن</th><th>الكمية المجرودة</th><th>الفارق</th></tr></thead><tbody>`); data.forEach(d=>{ w.document.write(`<tr><td style="border:1px solid #ddd;padding:8px;">${d.name}</td><td style="border:1px solid #ddd;padding:8px;">${d.oracleCode}</td><td style="border:1px solid #ddd;padding:8px;">${d.quantity} ${d.unit}</td><td style="border:1px solid #ddd;padding:8px;">${d.countedQuantity} ${d.unit}</td><td style="border:1px solid #ddd;padding:8px;">${d.difference}</td>`); }); w.document.write(`</tbody></table></body></html>`); w.document.close(); setTimeout(()=>w.print(),500); }
+            printReport(){ const type=document.getElementById('report-store-type').value; const date=document.getElementById('report-date').value; const data=this.materials.filter(m=>(type===''||m.storeType===type) && this.inventoryCounts.some(i=>i.oracleCode===m.oracleCode)).map(m=>{const i=this.inventoryCounts.find(i=>i.oracleCode===m.oracleCode); return{name:m.name,oracleCode:m.oracleCode,shelf:m.shelf,quantity:m.quantity,unit:m.unit,countedQuantity:i?.countedQuantity||0,difference:i?.difference||0,notes:i?.notes||''};}); if(!data.length){ this.showAlert('لا توجد بيانات','warning'); return; } const w=window.open('','_blank'); w.document.write(`<html><head><title>تقرير الجرد</title><style>body{font-family:Arial;padding:20px;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ddd;padding:8px;text-align:center;}th{background:#2c3e50;color:white;}</style></head><body><h2 style="text-align:center;">تقرير جرد المواد</h2><p>التاريخ: ${date}</p></table><thead><tr><th>اسم المادة</th><th>كود الأوريكال</th><th>الكمية بالمخزن</th><th>الكمية المجرودة</th><th>الفارق</th></tr></thead><tbody>`); data.forEach(d=>{ w.document.write(`<tr><td style="border:1px solid #ddd;padding:8px;">${d.name}</td><td style="border:1px solid #ddd;padding:8px;">${d.oracleCode}</td><td style="border:1px solid #ddd;padding:8px;">${d.quantity} ${d.unit}</td><td style="border:1px solid #ddd;padding:8px;">${d.countedQuantity} ${d.unit}</td><td style="border:1px solid #ddd;padding:8px;">${d.difference}</td>`); }); w.document.write(`</tbody><td></body></html>`); w.document.close(); setTimeout(()=>w.print(),500); }
             
             previewReport(){ this.printReport(); }
             
@@ -494,26 +602,20 @@
             
             clearIssueForm(){ document.getElementById('issue-oracle').value=''; document.getElementById('issue-name').value=''; document.getElementById('issue-available').value=''; document.getElementById('issue-unit').value=''; document.getElementById('issue-quantity').value=''; document.getElementById('issue-item-notes').value=''; }
             
-            showCurrentRequestItems(){ const container=document.getElementById('current-request-items'); if(!this.currentRequest){ container.innerHTML='<div class="alert alert-info">لا يوجد طلب حالي</div>'; return; } if(!this.currentRequestItems.length){ container.innerHTML=`<div class="search-box"><h4 style="text-align:center;">مواد الطلب الحالي</h4><div class="alert alert-info">لا توجد مواد في الطلب الحالي</div></div>`; return; } let html=`<div class="search-box"><h4 style="text-align:center;">مواد الطلب الحالي</h4><div class="results-info"><span>رقم الطلب: ${this.currentRequest.requestNumber}</span> | <span>التاريخ: ${this.currentRequest.date}</span> | <span>الحالة: ${this.currentRequest.status}</span>${this.currentRequest.department ? ` | <span>الجهة الطالبة: ${this.currentRequest.department}</span>` : ''}</div><div class="table-container">\n<table><thead><tr><th>المادة</th><th>كود الأوريكال</th><th>الوحدة</th><th>المتاح</th><th>المطلوب</th><th>ملاحظات البند</th><th>إجراءات</th></tr></thead><tbody>`;
-                this.currentRequestItems.forEach(i=>{ html+=`<tr><td>${i.name}</td><td>${i.oracleCode}</td><td>${i.unit}</td><td>${i.availableQuantity}</td><td>${i.requiredQuantity}</td><td>${i.itemNotes||'-'}</td><td class="actions-cell"><button class="btn-danger" onclick="labSystem.removeRequestItem('${i.oracleCode}')">إزالة</button></td>`; });
+            showCurrentRequestItems(){ const container=document.getElementById('current-request-items'); if(!this.currentRequest){ container.innerHTML='<div class="alert alert-info">لا يوجد طلب حالي</div>'; return; } if(!this.currentRequestItems.length){ container.innerHTML=`<div class="search-box"><h4 style="text-align:center;">مواد الطلب الحالي</h4><div class="alert alert-info">لا توجد مواد في الطلب الحالي</div></div>`; return; } let html=`<div class="search-box"><h4 style="text-align:center;">مواد الطلب الحالي</h4><div class="results-info"><span>رقم الطلب: ${this.currentRequest.requestNumber}</span> | <span>التاريخ: ${this.currentRequest.date}</span> | <span>الحالة: ${this.currentRequest.status}</span>${this.currentRequest.department ? ` | <span>الجهة الطالبة: ${this.currentRequest.department}</span>` : ''}</div><div class="table-container">\n</td><thead><tr><th>المادة</th><th>كود الأوريكال</th><th>الوحدة</th><th>المتاح</th><th>المطلوب</th><th>ملاحظات البند</th><th>إجراءات</th></tr></thead><tbody>`;
+                this.currentRequestItems.forEach(i=>{ html+=`<tr><td style="text-align:right">${i.name}</td><td style="text-align:center">${i.oracleCode}</td><td style="text-align:center">${i.unit}</td><td style="text-align:center">${i.availableQuantity}</td><td style="text-align:center">${i.requiredQuantity}</td><td style="text-align:center">${i.itemNotes||'-'}</td><td class="actions-cell"><button class="btn-danger" onclick="labSystem.removeRequestItem('${i.oracleCode}')">إزالة</button></td>`; });
                 html+=`</tbody>}</div><div class="btn-group"><button class="btn-success" onclick="labSystem.saveRequest()">حفظ الطلب</button><button class="btn-warning" onclick="labSystem.closeRequest()" ${this.currentRequest.status==='Closed'?'disabled':''}>إغلاق الطلب</button></div></div>`; container.innerHTML=html; }
             
             async removeRequestItem(oracle){ if(confirm('هل أنت متأكد من إزالة هذه المادة؟')){ this.currentRequestItems=this.currentRequestItems.filter(i=>i.oracleCode!==oracle); await this.saveAllData(); this.showCurrentRequestItems(); this.showAlert('تمت الإزالة','success'); } }
             
             async saveRequest(){ if(!this.currentRequest){ this.showAlert('لا يوجد طلب للحفظ','warning'); return; } this.currentRequest.department=document.getElementById('request-department').value.trim(); this.currentRequest.generalNotes=document.getElementById('request-notes').value.trim(); const existing=this.issueRequests.findIndex(r=>r.id===this.currentRequest.id); const fullReq={...this.currentRequest,items:[...this.currentRequestItems]}; if(existing>=0) this.issueRequests[existing]=fullReq; else this.issueRequests.push(fullReq); await this.saveAllData(); this.showAlert('تم حفظ الطلب','success'); this.showPreviousRequests(); }
             
-            // ============================================================
-            // دالة إغلاق الطلب مع خصم الكميات من رصيد المواد
-            // ============================================================
             async closeRequest(){ 
                 if(this.currentRequest && this.currentRequest.status!=='Closed'){
-                    // التحقق من وجود مواد في الطلب
                     if(this.currentRequestItems.length === 0){
                         this.showAlert('لا توجد مواد في الطلب لإغلاقه', 'warning');
                         return;
                     }
-                    
-                    // التحقق من توفر الكميات المطلوبة
                     let hasError = false;
                     for(const item of this.currentRequestItems){
                         const material = this.materials.find(m => m.oracleCode === item.oracleCode);
@@ -529,39 +631,27 @@
                             break;
                         }
                     }
-                    
                     if(hasError) return;
-                    
-                    // خصم الكميات من رصيد المواد
                     for(const item of this.currentRequestItems){
                         const materialIndex = this.materials.findIndex(m => m.oracleCode === item.oracleCode);
                         if(materialIndex !== -1){
                             const reqQty = parseFloat(item.requiredQuantity);
                             this.materials[materialIndex].quantity -= reqQty;
-                            // منع وصول الرصيد إلى قيمة سالبة
                             if(this.materials[materialIndex].quantity < 0){
                                 this.materials[materialIndex].quantity = 0;
                             }
                         }
                     }
-                    
-                    // تغيير حالة الطلب إلى مغلق
                     this.currentRequest.status = 'Closed';
                     this.currentRequest.closedAt = new Date().toISOString();
-                    
-                    // حفظ التغييرات
                     await this.saveAllData();
-                    
-                    // تحديث العرض
                     this.showCurrentRequestItems();
                     this.updateStats();
-                    
                     this.showAlert('تم إغلاق الطلب وخصم الكميات من رصيد المخزون بنجاح', 'success');
                 }else{
                     this.showAlert('الطلب مغلق بالفعل أو لا يوجد طلب حالي', 'warning');
                 }
             }
-            // ============================================================
             
             printRequest(){ if(!this.currentRequest || !this.currentRequestItems.length){ this.showAlert('لا توجد مواد للطباعة','warning'); return; } const w=window.open('','_blank'); w.document.write(`<html><head><title>طلب صرف</title><style>body{font-family:Arial;padding:20px;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ddd;padding:8px;text-align:center;}th{background:#2c3e50;color:white;}</style></head><body><h2 style="text-align:center;">طلب صرف مواد</h2><p>رقم الطلب: ${this.currentRequest.requestNumber} | التاريخ: ${this.currentRequest.date}</p>${this.currentRequest.department ? `<p><strong>الجهة الطالبة:</strong> ${this.currentRequest.department}</p>` : ''}<table><thead><tr><th>المادة</th><th>كود الأوريكال</th><th>الوحدة</th><th>الكمية المطلوبة</th><th>ملاحظات البند</th></tr></thead><tbody>`); this.currentRequestItems.forEach(i=>{ w.document.write(`<tr><td style="border:1px solid #ddd;padding:8px;">${i.name}</td><td style="border:1px solid #ddd;padding:8px;">${i.oracleCode}</td><td style="border:1px solid #ddd;padding:8px;">${i.unit}</td><td style="border:1px solid #ddd;padding:8px;">${i.requiredQuantity}</td><td style="border:1px solid #ddd;padding:8px;">${i.itemNotes||'-'}</td>`); }); w.document.write(`</tbody></table><p><strong>ملاحظات عامة:</strong> ${this.currentRequest.generalNotes||'-'}</p></body></html>`); w.document.close(); setTimeout(()=>w.print(),500); }
             
@@ -570,9 +660,7 @@
                     this.showAlert('لا توجد مواد للتصدير', 'warning');
                     return;
                 }
-
                 this.showAlert('جاري إنشاء ملف Word...', 'info');
-
                 let htmlContent = `<!DOCTYPE html>
                 <html dir="rtl" lang="ar">
                 <head>
@@ -611,12 +699,10 @@
                             <tr><th>م</th><th>اسم المادة</th><th>كود الأوريكال</th><th>الوحدة</th><th>الكمية المطلوبة</th><th>ملاحظات البند</th></tr>
                         </thead>
                         <tbody>`;
-                
                 for (let i = 0; i < this.currentRequestItems.length; i++) {
                     const item = this.currentRequestItems[i];
                     htmlContent += `<tr><td style="text-align:center">${i+1}</td><td style="text-align:right">${this.escapeHtml(item.name)}</td><td style="text-align:center">${this.escapeHtml(item.oracleCode)}</td><td style="text-align:center">${this.escapeHtml(item.unit)}</td><td style="text-align:center">${item.requiredQuantity}</td><td style="text-align:center">${this.escapeHtml(item.itemNotes||'-')}</td></tr>`;
                 }
-                
                 htmlContent += `
                         </tbody>
                     </table>
@@ -633,7 +719,6 @@
                     <div class="footer">تم الإنشاء بواسطة نظام جرد المخازن - جامعة عبد الله السالم</div>
                 </body>
                 </html>`;
-                
                 const blob = new Blob([htmlContent], { type: 'application/msword' });
                 const fileName = `طلب_صرف_${this.currentRequest.requestNumber}.doc`;
                 saveAs(blob, fileName);
@@ -642,7 +727,6 @@
             
             searchCriticalMaterials() {
                 const storeType = document.getElementById('critical-store-type').value;
-                
                 let criticalMaterials = this.materials.filter(m => {
                     const initialQty = m.initialQuantity || m.quantity;
                     const currentQty = m.quantity;
@@ -651,13 +735,11 @@
                     const isLow = percentage <= 10 && currentQty > 0;
                     return (isLow || isZero) && (!storeType || m.storeType === storeType);
                 });
-                
                 criticalMaterials = criticalMaterials.sort((a, b) => {
                     const percentA = a.initialQuantity > 0 ? (a.quantity / a.initialQuantity) * 100 : 0;
                     const percentB = b.initialQuantity > 0 ? (b.quantity / b.initialQuantity) * 100 : 0;
                     return percentA - percentB;
                 });
-                
                 this.currentCriticalMaterials = criticalMaterials;
                 this.showCriticalResults();
             }
@@ -665,20 +747,17 @@
             showCriticalResults() {
                 const container = document.getElementById('critical-results');
                 const materials = this.currentCriticalMaterials || [];
-                
                 if (materials.length === 0) {
                     container.innerHTML = '<div class="alert alert-info">لا توجد مواد حرجة في هذا المخزن</div>';
                     return;
                 }
-                
                 let html = `<div class="results-info">عدد المواد الحرجة: ${materials.length} مادة</div>
                 <div class="table-container">
-                <table>
+                </tr>
                     <thead>
                         <tr><th>#</th><th>اسم المادة</th><th>كود الأوريكال</th><th>رقم الرف</th><th>الرصيد الأصلي</th><th>الرصيد الحالي</th><th>النسبة المتبقية</th><th>الكمية المطلوب شراؤها</th><th>وحدة الصرف</th><th>نوع المخزن</th></tr>
                     </thead>
                     <tbody>`;
-                
                 for (let i = 0; i < materials.length; i++) {
                     const m = materials[i];
                     const initialQty = m.initialQuantity || m.quantity;
@@ -687,7 +766,6 @@
                     const toPurchase = initialQty - currentQty;
                     const isZero = currentQty <= 0;
                     const percentageClass = isZero ? 'critical-zero' : (percentage <= 5 ? 'critical-warning' : '');
-                    
                     html += `<tr>
                         <td style="text-align:center">${i+1}</td>
                         <td style="text-align:right">${this.escapeHtml(m.name)}</td>
@@ -701,7 +779,6 @@
                         <td style="text-align:center">${this.escapeHtml(m.storeType)}</td>
                     </tr>`;
                 }
-                
                 html += `</tbody></table></div>`;
                 container.innerHTML = html;
             }
@@ -710,18 +787,14 @@
                 const materials = this.currentCriticalMaterials || [];
                 const storeType = document.getElementById('critical-store-type').value;
                 const storeName = storeType || 'جميع المخازن';
-                
                 if (materials.length === 0) {
                     this.showAlert('لا توجد مواد حرجة للتصدير', 'warning');
                     return;
                 }
-                
                 this.showAlert('جاري إنشاء تقرير Word...', 'info');
-                
                 const today = new Date().toISOString().split('T')[0];
                 let tableRows = '';
                 let totalToPurchase = 0;
-                
                 for (let i = 0; i < materials.length; i++) {
                     const m = materials[i];
                     const initialQty = m.initialQuantity || m.quantity;
@@ -731,7 +804,6 @@
                     totalToPurchase += toPurchase;
                     const isZero = currentQty <= 0;
                     const statusText = isZero ? 'نفذ بالكامل' : (percentage <= 5 ? 'حرج جداً' : 'حرج');
-                    
                     tableRows += `<tr>
                         <td style="text-align:center">${i+1}</td>
                         <td style="text-align:right">${this.escapeHtml(m.name)}</td>
@@ -745,7 +817,6 @@
                         <td style="text-align:center">${statusText}</td>
                     </tr>`;
                 }
-                
                 let htmlContent = `<!DOCTYPE html>
                 <html dir="rtl" lang="ar">
                 <head>
@@ -800,7 +871,6 @@
                     </div>
                 </body>
                 </html>`;
-                
                 const blob = new Blob([htmlContent], { type: 'application/msword' });
                 const fileName = `تقرير_المخزن_الحرج_${storeName}_${today}.doc`;
                 saveAs(blob, fileName);
@@ -821,7 +891,7 @@
             
             clearRequestSearch(){ document.getElementById('search-request-number').value=''; document.getElementById('search-request-date-from').value=''; document.getElementById('search-request-date-to').value=''; this.currentRequestSearchResults=[]; this.showPreviousRequests(); }
             
-            showPreviousRequests(){ const container=document.getElementById('previous-requests-results'); const list=this.currentRequestSearchResults.length?this.currentRequestSearchResults:this.issueRequests; if(!list.length){ container.innerHTML='<div class="alert alert-info">لا توجد طلبات سابقة</div>'; return; } let html=`<div class="results-info">${list.length} طلب</div><div class="table-container">\n<tr><thead><tr><th>رقم الطلب</th><th>التاريخ</th><th>الجهة الطالبة</th><th>المواد</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>`; list.forEach(r=>{ html+=`<tr><td>${r.requestNumber}</td><td>${r.date}</td><td>${r.department||'-'}</td><td>${r.items?.length||0}</td><td><span class="${r.status==='Open'?'request-status-open':'request-status-closed'}">${r.status}</span></td><td class="actions-cell"><button class="btn-primary" onclick="labSystem.viewRequestDetails(${r.id})" style="padding:6px 12px;">عرض</button><button class="btn-danger" onclick="labSystem.deleteRequest(${r.id})" style="padding:6px 12px;">حذف</button></td>`; }); html+=`</tbody>}</div>`; container.innerHTML=html; }
+            showPreviousRequests(){ const container=document.getElementById('previous-requests-results'); const list=this.currentRequestSearchResults.length?this.currentRequestSearchResults:this.issueRequests; if(!list.length){ container.innerHTML='<div class="alert alert-info">لا توجد طلبات سابقة</div>'; return; } let html=`<div class="results-info">${list.length} طلب</div><div class="table-container">\n<td><thead><tr><th>رقم الطلب</th><th>التاريخ</th><th>الجهة الطالبة</th><th>المواد</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>`; list.forEach(r=>{ html+=`<tr><td style="text-align:center">${r.requestNumber}</td><td style="text-align:center">${r.date}</td><td style="text-align:center">${r.department||'-'}</td><td style="text-align:center">${r.items?.length||0}</td><td style="text-align:center"><span class="${r.status==='Open'?'request-status-open':'request-status-closed'}">${r.status}</span></td><td class="actions-cell"><button class="btn-primary" onclick="labSystem.viewRequestDetails(${r.id})" style="padding:6px 12px;">عرض</button><button class="btn-danger" onclick="labSystem.deleteRequest(${r.id})" style="padding:6px 12px;">حذف</button></td>`; }); html+=`</tbody>}</div>`; container.innerHTML=html; }
             
             viewRequestDetails(id){ const req=this.issueRequests.find(r=>r.id===id); if(!req) return; let msg=`طلب رقم: ${req.requestNumber}\nالتاريخ: ${req.date}\nالجهة الطالبة: ${req.department||'-'}\nالحالة: ${req.status}\nالمواد:\n`; req.items?.forEach(i=>{ msg+=`- ${i.name} : ${i.requiredQuantity} ${i.unit} ${i.itemNotes ? `(ملاحظات: ${i.itemNotes})` : ''}\n`; }); if(req.generalNotes) msg+=`\nملاحظات عامة: ${req.generalNotes}`; alert(msg); }
             
@@ -829,7 +899,7 @@
             
             filterPrintMaterials(){ const store=document.getElementById('print-store').value; const source=document.getElementById('print-source').value; const limit=parseInt(document.getElementById('print-limit').value); let filtered=this.materials.filter(m=>(!store||m.storeType===store)&&(!source||m.source===source)); if(limit>0 && filtered.length>limit) filtered=filtered.slice(0,limit); this.currentPrintResults=filtered; this.showPrintResults(); }
             
-            showPrintResults(){ const container=document.getElementById('print-results'); const list=this.currentPrintResults.length?this.currentPrintResults:this.materials; if(!list.length){ container.innerHTML='<div class="alert alert-info">لا توجد مواد للطباعة</div>'; return; } let html=`<div class="results-info">${list.length} بطاقة جاهزة</div><div class="table-container">\n<tr><thead><tr><th class="checkbox-cell"><input type="checkbox" id="select-all" onclick="labSystem.toggleSelectAll(this.checked)"></th><th>اسم المادة</th><th>رقم الرف</th><th>كود الأوريكال</th><th>المخزن</th><th>الكمية</th><th>طباعة</th></tr></thead><tbody>`; list.forEach(m=>{ html+=`<tr><td class="checkbox-cell"><input type="checkbox" class="print-checkbox" data-id="${m.id}"></td><td>${m.name}</td><td>${m.shelf}</td><td>${m.oracleCode}</td><td>${m.storeType}</td><td>${m.quantity} ${m.unit}</td><td><button onclick="labSystem.printMaterial(${m.id})" class="btn-primary" style="padding:6px 12px;">🖨️</button></td>`; }); html+=`</tbody>}</div>`; container.innerHTML=html; }
+            showPrintResults(){ const container=document.getElementById('print-results'); const list=this.currentPrintResults.length?this.currentPrintResults:this.materials; if(!list.length){ container.innerHTML='<div class="alert alert-info">لا توجد مواد للطباعة</div>'; return; } let html=`<div class="results-info">${list.length} بطاقة جاهزة</div><div class="table-container">\n<table><thead><tr><th class="checkbox-cell"><input type="checkbox" id="select-all" onclick="labSystem.toggleSelectAll(this.checked)"></th><th>اسم المادة</th><th>رقم الرف</th><th>كود الأوريكال</th><th>المخزن</th><th>الكمية</th><th>طباعة</th></tr></thead><tbody>`; list.forEach(m=>{ html+=`<tr><td class="checkbox-cell"><input type="checkbox" class="print-checkbox" data-id="${m.id}"></td><td style="text-align:right">${m.name}</td><td style="text-align:center">${m.shelf}</td><td style="text-align:center">${m.oracleCode}</td><td style="text-align:center">${m.storeType}</td><td style="text-align:center">${m.quantity} ${m.unit}</td><td class="actions-cell"><button onclick="labSystem.printMaterial(${m.id})" class="btn-primary" style="padding:6px 12px;">🖨️</button></td>`; }); html+=`</tbody>}</div>`; container.innerHTML=html; }
             
             toggleSelectAll(checked){ document.querySelectorAll('.print-checkbox').forEach(cb=>cb.checked=checked); }
             
